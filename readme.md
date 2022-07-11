@@ -1,8 +1,4 @@
-# Vite Three WebXR Fox
-
-WebXR - Hit Test API
-
-[Live Demo](https://vite-three-webxr-fox.vercel.app/)
+# Vite Three WebXR Audio Visualizer
 
 ## Setup
 
