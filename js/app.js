@@ -5,7 +5,7 @@ console.log('🎉', 'Project generated using vite-three-starter')
 console.log(':: https://github.com/Alex-DG/vite-three-starter ::')
 
 /**
- * WebXR
+ * Dom
  */
 document.querySelector('#app').innerHTML = `
  <div class="container">
@@ -13,8 +13,12 @@ document.querySelector('#app').innerHTML = `
    <h2>AR / WebXR</h2>
    <p id="ar-details">
     This is an experiment using augmented reality features with the WebXR Device API.<br></br>
-    Upon entering AR, enjoy the music! 🎧
+    Upon entering AR, enjoy the beat 🎧
    </p>
+ </div>
+
+ <div class="audio-player">
+    <audio id="audio-controller" controls></audio>
  </div>
 `
 

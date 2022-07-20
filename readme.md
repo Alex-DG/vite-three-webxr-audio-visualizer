@@ -14,3 +14,10 @@ yarn dev
 # Build for production in the dist/ directory
 yarn build
 ```
+
+[]: Set hit API
+[]: Set floor plane
+[]: Set ragin sea shader
+[]: Plug ragin sea shader with the audio beat
+[]: Custom close button
+[]: On close pause/reset audio track

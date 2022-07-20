@@ -18,9 +18,9 @@ class SoundReactor {
   }
 
   init() {
-    this.setAudioReset()
+    // this.setAudioReset()
     this.setAudioController()
-    this.setAudioImport()
+    // this.setAudioImport()
   }
 
   //////////////////////////////////////////////////////////////////////////////
