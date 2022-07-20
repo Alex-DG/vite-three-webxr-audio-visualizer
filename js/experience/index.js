@@ -9,9 +9,8 @@ import {
 
 import { settings } from './utils/settings'
 
-import VisualizerIcoMaterial from './VisualizerIcoMaterial'
 import SoundReactor from './SoundReactor'
-// import ParticleSystem from './ParticleSystem'
+import VisualizerIcoMaterial from './VisualizerIcoMaterial'
 import ParticleMaterial from './ParticleMaterial'
 
 class Experience {
@@ -104,14 +103,11 @@ class Experience {
   }
 
   setParticleSystem() {
-    // this.particleSystem = new ParticleSystem({ scene: this.scene })
-
     this.particleMaterial = new ParticleMaterial()
     const particleGeometry = new THREE.BufferGeometry()
-
     const count = 1000
     const positionArray = new Float32Array(count * 3)
-    const scaleArray = new Float32Array(count) // add scale randomness
+    const scaleArray = new Float32Array(count)
 
     for (let i = 0; i < count; i++) {
       positionArray[i * 3 + 0] = (Math.random() - 0.5) * 4
@@ -260,7 +256,6 @@ class Experience {
 
   updateParticleSystem(time) {
     if (this.particleMaterial) {
-      console.log({ time })
       this.particleMaterial.uniforms.uTime.value = time
     }
   }

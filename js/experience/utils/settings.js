@@ -1,5 +1,5 @@
 const ico = {
-  speed: 0.2,
+  speed: 0.1,
   density: 1.5,
   strength: 0.2,
   frequency: 3.0,
