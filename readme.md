@@ -21,3 +21,4 @@ yarn build
 []: Plug ragin sea shader with the audio beat
 []: Custom close button
 []: On close pause/reset audio track
+[]: Create Loading manager -> enable setupAudioContext

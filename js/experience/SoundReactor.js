@@ -6,6 +6,7 @@ class SoundReactor {
   constructor() {
     this.dataArray = new Uint8Array([0])
     this.playing = false
+    this.ready = false
 
     this.init()
   }
@@ -20,12 +21,13 @@ class SoundReactor {
     this.audio = new Audio(audioSrc)
     this.audio.loop = true
     this.audio.onloadeddata = () => {
-      this.setupAudioContext()
+      this.audio.currentTime = 8
+      this.ready = true
     }
   }
 
   setupAudioContext() {
-    if (this.audioContext) return
+    if (!this.ready) return
 
     this.audioContext = new AudioContext()
 
@@ -40,6 +42,10 @@ class SoundReactor {
     this.analyser.fftSize = 1024
 
     this.dataArray = new Uint8Array(this.analyser.frequencyBinCount)
+
+    setTimeout(() => {
+      this.play()
+    }, 1000)
   }
 
   setPlayState(value) {

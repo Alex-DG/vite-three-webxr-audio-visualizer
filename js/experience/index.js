@@ -150,7 +150,7 @@ class Experience {
 
     // Start audio
     domARButton.addEventListener('click', () => {
-      this.audioController.play()
+      this.audioController.setupAudioContext()
     })
   }
 
