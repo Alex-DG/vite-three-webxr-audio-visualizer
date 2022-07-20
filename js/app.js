@@ -16,10 +16,6 @@ document.querySelector('#app').innerHTML = `
     Upon entering AR, enjoy the beat 🎧
    </p>
  </div>
-
- <div class="audio-player">
-    <audio id="audio-controller" controls></audio>
- </div>
 `
 
 /**
