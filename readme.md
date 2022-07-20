@@ -16,7 +16,7 @@ yarn build
 ```
 
 [x]: Set hit API
-[]: Set floor plane
+[x]: Set basic mesh floor plane
 []: Set ragin sea shader
 []: Plug ragin sea shader with the audio beat
 []: Custom close button

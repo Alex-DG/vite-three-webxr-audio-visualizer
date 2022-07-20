@@ -101,10 +101,19 @@ class Experience {
   }
 
   setMarker() {
-    const planeMarkerMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff })
-    const planeMarkerGeometry = new THREE.RingGeometry(0.14, 0.15, 16).rotateX(
-      -Math.PI / 2
-    )
+    const planeMarkerMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      wireframe: true,
+    })
+    // const planeMarkerGeometry = new THREE.RingGeometry(0.14, 0.15, 16).rotateX(
+    //   -Math.PI / 2
+    // )
+    const planeMarkerGeometry = new THREE.PlaneBufferGeometry(
+      0.5,
+      0.5,
+      64 * 2,
+      64 * 2
+    ).rotateX(-Math.PI / 2)
 
     this.marker = new THREE.Mesh(planeMarkerGeometry, planeMarkerMaterial)
     this.marker.matrixAutoUpdate = false

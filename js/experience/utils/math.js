@@ -2,7 +2,7 @@ export const fractionate = (val, minVal, maxVal) => {
   return (val - minVal) / (maxVal - minVal)
 }
 
-export const modulate = (val, minVal, maxVal, outMin, outMax) => {
+export const map = (val, minVal, maxVal, outMin, outMax) => {
   var fr = fractionate(val, minVal, maxVal)
   var delta = outMax - outMin
   return outMin + fr * delta
