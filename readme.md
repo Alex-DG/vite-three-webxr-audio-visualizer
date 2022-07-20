@@ -15,7 +15,7 @@ yarn dev
 yarn build
 ```
 
-[]: Set hit API
+[x]: Set hit API
 []: Set floor plane
 []: Set ragin sea shader
 []: Plug ragin sea shader with the audio beat

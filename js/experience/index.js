@@ -4,6 +4,7 @@ import { ARButton } from 'three/examples/jsm/webxr/ARButton.js'
 import {
   browserHasImmersiveArCompatibility,
   displayUnsupportedBrowserMessage,
+  handleXRHitTest,
 } from './utils/xr'
 
 import { settings } from './utils/settings'
@@ -32,16 +33,32 @@ class Experience {
     this.setLight()
     this.setSizes()
     this.setCamera()
-    this.setCube()
+    this.setRenderer()
     this.setAudioController()
     this.setVisualizerIco()
-    this.setRenderer()
+    this.setMarker()
+    this.setController()
     this.setARButton()
 
     this.update()
   }
 
-  bind() {}
+  bind() {
+    this.onSelect = this.onSelect.bind(this)
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+
+  onSelect() {
+    if (this.marker?.visible) {
+      // const model = this.fox.clone()
+      // model.position.setFromMatrixPosition(this.marker.matrix)
+      // // Rotate the model randomly to give a bit of variation to the scene.
+      // model.rotation.y = Math.random() * (Math.PI * 2)
+      // model.visible = true
+      // this.scene.add(model)
+    }
+  }
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -68,15 +85,6 @@ class Experience {
     this.scene.add(this.camera)
   }
 
-  setCube() {
-    this.cube = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1, 10, 10),
-      new THREE.MeshNormalMaterial({ wireframe: false })
-    )
-    this.cube.position.z = -3
-    // this.scene.add(this.cube)
-  }
-
   setAudioController() {
     this.audioController = new SoundReactor()
   }
@@ -90,6 +98,24 @@ class Experience {
     this.visualizerIco.scale.multiplyScalar(0.5)
 
     this.scene.add(this.visualizerIco)
+  }
+
+  setMarker() {
+    const planeMarkerMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff })
+    const planeMarkerGeometry = new THREE.RingGeometry(0.14, 0.15, 16).rotateX(
+      -Math.PI / 2
+    )
+
+    this.marker = new THREE.Mesh(planeMarkerGeometry, planeMarkerMaterial)
+    this.marker.matrixAutoUpdate = false
+    this.scene.add(this.marker)
+  }
+
+  setController() {
+    this.controller = this.renderer.xr.getController(0)
+    this.scene.add(this.controller)
+
+    this.controller.addEventListener('select', this.onSelect)
   }
 
   setRenderer() {
@@ -127,6 +153,8 @@ class Experience {
     immersiveArSupported ? this.init() : displayUnsupportedBrowserMessage()
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+
   updateTime() {
     this.frameCount += 1
     this.elapsedTime = this.clock.getElapsedTime()
@@ -155,11 +183,8 @@ class Experience {
 
     // Update visualizer mesh
     if (this.visualizerIco) {
-      // const { position, rotation } = this.visualizerIco
-      // position.z = position.z + Math.sin(this.elapsedTime * 0.5) * 0.005
-
       const r = Math.sin(this.elapsedTime * 0.5) * 0.5
-      rotation.set(r, r, r)
+      this.visualizerIco.rotation.set(r, r, r)
 
       // Update uniforms
       this.materialIco.uniforms.uTime.value = this.frameCount / 10 //this.elapsedTime
@@ -172,6 +197,22 @@ class Experience {
     }
   }
 
+  updateWebXR(frame) {
+    handleXRHitTest(
+      this.renderer,
+      frame,
+      (hitPoseTransformed) => {
+        if (hitPoseTransformed) {
+          this.marker.visible = true
+          this.marker.matrix.fromArray(hitPoseTransformed)
+        }
+      },
+      () => {
+        this.marker.visible = false
+      }
+    )
+  }
+
   update() {
     const renderLoop = (_, frame) => {
       if (!this.isReady) return
@@ -179,6 +220,7 @@ class Experience {
       if (this.renderer.xr.isPresenting) {
         if (frame) {
           this.updateTime()
+          this.updateWebXR(frame)
           this.updateVisualizerIco()
         }
         this.renderer.render(this.scene, this.camera)

@@ -9,7 +9,7 @@ export const modulate = (val, minVal, maxVal, outMin, outMax) => {
 }
 
 export const avg = (arr) => {
-  if (arr) {
+  if (arr?.length) {
     const total = arr?.reduce(function (sum, b) {
       return sum + b
     })
@@ -19,7 +19,7 @@ export const avg = (arr) => {
 }
 
 export const max = (arr) => {
-  if (arr) {
+  if (arr?.length) {
     return arr?.reduce(function (a, b) {
       return Math.max(a, b)
     })
