@@ -16,6 +16,8 @@ yarn build
 ```
 
 [x]: Set hit API
+[]: Set p5js
+[]: particles
 [x]: Set basic mesh floor plane
 []: Set ragin sea shader
 []: Plug ragin sea shader with the audio beat

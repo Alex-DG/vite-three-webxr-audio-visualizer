@@ -11,6 +11,8 @@ import { settings } from './utils/settings'
 
 import VisualizerIcoMaterial from './VisualizerIcoMaterial'
 import SoundReactor from './SoundReactor'
+// import ParticleSystem from './ParticleSystem'
+import ParticleMaterial from './ParticleMaterial'
 
 class Experience {
   constructor(options) {
@@ -36,6 +38,7 @@ class Experience {
     this.setRenderer()
     this.setAudioController()
     this.setVisualizerIco()
+    this.setParticleSystem()
     this.setMarker()
     this.setController()
     this.setARButton()
@@ -98,6 +101,39 @@ class Experience {
     this.visualizerIco.scale.multiplyScalar(0.5)
 
     this.scene.add(this.visualizerIco)
+  }
+
+  setParticleSystem() {
+    // this.particleSystem = new ParticleSystem({ scene: this.scene })
+
+    this.particleMaterial = new ParticleMaterial()
+    const particleGeometry = new THREE.BufferGeometry()
+
+    const count = 1000
+    const positionArray = new Float32Array(count * 3)
+    const scaleArray = new Float32Array(count) // add scale randomness
+
+    for (let i = 0; i < count; i++) {
+      positionArray[i * 3 + 0] = (Math.random() - 0.5) * 4
+      positionArray[i * 3 + 1] = Math.random() * 1.5
+      positionArray[i * 3 + 2] = (Math.random() - 0.5) * 4
+      scaleArray[i] = Math.random()
+    }
+
+    particleGeometry.setAttribute(
+      'position',
+      new THREE.BufferAttribute(positionArray, 3)
+    )
+    particleGeometry.setAttribute(
+      'aScale',
+      new THREE.BufferAttribute(scaleArray, 1)
+    )
+
+    this.particleSystem = new THREE.Points(
+      particleGeometry,
+      this.particleMaterial
+    )
+    this.scene.add(this.particleSystem)
   }
 
   setMarker() {
@@ -222,15 +258,27 @@ class Experience {
     )
   }
 
+  updateParticleSystem(time) {
+    if (this.particleMaterial) {
+      console.log({ time })
+      this.particleMaterial.uniforms.uTime.value = time
+    }
+  }
+
   update() {
-    const renderLoop = (_, frame) => {
+    const renderLoop = (time, frame) => {
       if (!this.isReady) return
+
+      if (this.particleMaterial) {
+        // this.particleMaterial.uniforms.uTime.value = time
+      }
 
       if (this.renderer.xr.isPresenting) {
         if (frame) {
           this.updateTime()
           this.updateWebXR(frame)
           this.updateVisualizerIco()
+          this.updateParticleSystem(time)
         }
         this.renderer.render(this.scene, this.camera)
       }
