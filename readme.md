@@ -19,9 +19,3 @@ yarn dev
 # Build for production in the dist/ directory
 yarn build
 ```
-
-[x]: Set p5js
-[x]: particles
-[]: Custom close button
-[]: On close pause/reset audio track
-[]: Create Loading manager -> enable setupAudioContext
