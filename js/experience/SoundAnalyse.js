@@ -1,6 +1,6 @@
 import Loader from './Loader'
 
-import audioSrc from '../../assets/audio/Pandrezz_Curtain_Call.mp4'
+import audioSrc from '../../assets/audio/Maxenss - MERCI ft. VSO_v1.mp3'
 import { hideEndSessionBtn, showEndSessionBtn } from './utils/dom'
 import { isWaveForm } from './utils/url'
 
@@ -72,13 +72,12 @@ class _SoundAnalyse {
       canvas.parent('p5')
 
       // Sound analysis tools
-      fft = new p5.FFT(0.4)
+      fft = new p5.FFT()
       amp = new p5.Amplitude()
     }
 
     sketch.draw = () => {
       clear()
-      stroke(random(255))
 
       fft.analyze()
 
