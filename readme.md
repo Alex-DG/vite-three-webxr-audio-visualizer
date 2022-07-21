@@ -1,5 +1,10 @@
 # Vite Three WebXR Audio Visualizer
 
+- P5.js
+- Three.js
+- WebXR
+- [Music by Pandrezz - Curtain Call](https://www.youtube.com/watch?v=Yc_T-CyCvYM)
+
 ## Setup
 
 Run the following commands:
@@ -15,12 +20,8 @@ yarn dev
 yarn build
 ```
 
-[x]: Set hit API
-[]: Set p5js
-[]: particles
-[x]: Set basic mesh floor plane
-[]: Set ragin sea shader
-[]: Plug ragin sea shader with the audio beat
+[x]: Set p5js
+[x]: particles
 []: Custom close button
 []: On close pause/reset audio track
 []: Create Loading manager -> enable setupAudioContext

@@ -4,18 +4,19 @@ import { ARButton } from 'three/examples/jsm/webxr/ARButton.js'
 import {
   browserHasImmersiveArCompatibility,
   displayUnsupportedBrowserMessage,
-  handleXRHitTest,
-} from './utils/xr'
+  handleSession,
+  shutdownXR,
+} from './utils/xr.js'
 
-import { settings } from './utils/settings'
-
-import SoundReactor from './SoundReactor'
-import VisualizerIcoMaterial from './VisualizerIcoMaterial'
+import SoundAnalyse from './SoundAnalyse'
 import ParticleMaterial from './ParticleMaterial'
+import SphereMaterial from './SphereMaterial'
 
 class Experience {
   constructor(options) {
     this.container = options.container
+    this.sketch = options.sketch
+
     this.scene = new THREE.Scene()
     this.clock = new THREE.Clock()
 
@@ -25,49 +26,49 @@ class Experience {
     this.deltaTime = 0
     this.frameCount = 0
 
+    this.endSessionBtn = document.querySelector('.xr-end-session-btn')
+
+    SoundAnalyse.init(this.sketch)
+
     this.start()
   }
 
   init() {
     this.bind()
 
-    this.setLight()
     this.setSizes()
     this.setCamera()
     this.setRenderer()
-    this.setAudioController()
-    this.setVisualizerIco()
+    this.setSphere()
     this.setParticleSystem()
-    this.setMarker()
-    this.setController()
     this.setARButton()
 
     this.update()
   }
 
   bind() {
-    this.onSelect = this.onSelect.bind(this)
+    this.onShutdown = this.onShutdown.bind(this)
+    this.onSessionEnd = this.onSessionEnd.bind(this)
+    this.onSessionStart = this.onSessionStart.bind(this)
   }
 
   //////////////////////////////////////////////////////////////////////////////
 
-  onSelect() {
-    if (this.marker?.visible) {
-      // const model = this.fox.clone()
-      // model.position.setFromMatrixPosition(this.marker.matrix)
-      // // Rotate the model randomly to give a bit of variation to the scene.
-      // model.rotation.y = Math.random() * (Math.PI * 2)
-      // model.visible = true
-      // this.scene.add(model)
-    }
+  onSessionEnd() {
+    this.renderer.clear()
+    SoundAnalyse.stop()
+    console.log('👋', 'Session ended')
+  }
+
+  onShutdown() {
+    shutdownXR(this.renderer)
+  }
+
+  onSessionStart() {
+    this.endSessionBtn?.addEventListener('click', this.onShutdown)
   }
 
   //////////////////////////////////////////////////////////////////////////////
-
-  setLight() {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)
-    this.scene.add(ambientLight)
-  }
 
   setSizes() {
     this.sizes = {
@@ -91,27 +92,25 @@ class Experience {
     this.audioController = new SoundReactor()
   }
 
-  setVisualizerIco() {
-    this.materialIco = new VisualizerIcoMaterial()
-    const geometry = new THREE.IcosahedronBufferGeometry(1, 32)
-
-    this.visualizerIco = new THREE.Mesh(geometry, this.materialIco)
-    this.visualizerIco.position.z = -3
-    this.visualizerIco.scale.multiplyScalar(0.5)
-
-    this.scene.add(this.visualizerIco)
+  setSphere() {
+    this.sphereMaterial = new SphereMaterial()
+    const geometry = new THREE.SphereBufferGeometry(1, 200, 200)
+    this.sphere = new THREE.Mesh(geometry, this.sphereMaterial)
+    this.sphere.position.z = -3
+    this.sphere.scale.multiplyScalar(0.7)
+    this.scene.add(this.sphere)
   }
 
   setParticleSystem() {
     this.particleMaterial = new ParticleMaterial()
     const particleGeometry = new THREE.BufferGeometry()
-    const count = 1000
+    const count = 2000
     const positionArray = new Float32Array(count * 3)
     const scaleArray = new Float32Array(count)
 
     for (let i = 0; i < count; i++) {
       positionArray[i * 3 + 0] = (Math.random() - 0.5) * 4
-      positionArray[i * 3 + 1] = Math.random() * 1.5
+      positionArray[i * 3 + 1] = Math.random() * 2
       positionArray[i * 3 + 2] = (Math.random() - 0.5) * 4
       scaleArray[i] = Math.random()
     }
@@ -132,33 +131,6 @@ class Experience {
     this.scene.add(this.particleSystem)
   }
 
-  setMarker() {
-    const planeMarkerMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      wireframe: true,
-    })
-    // const planeMarkerGeometry = new THREE.RingGeometry(0.14, 0.15, 16).rotateX(
-    //   -Math.PI / 2
-    // )
-    const planeMarkerGeometry = new THREE.PlaneBufferGeometry(
-      0.5,
-      0.5,
-      64 * 2,
-      64 * 2
-    ).rotateX(-Math.PI / 2)
-
-    this.marker = new THREE.Mesh(planeMarkerGeometry, planeMarkerMaterial)
-    this.marker.matrixAutoUpdate = false
-    this.scene.add(this.marker)
-  }
-
-  setController() {
-    this.controller = this.renderer.xr.getController(0)
-    this.scene.add(this.controller)
-
-    this.controller.addEventListener('select', this.onSelect)
-  }
-
   setRenderer() {
     // Create a new WebGL renderer and set the size + pixel ratio.
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
@@ -173,23 +145,29 @@ class Experience {
   }
 
   setARButton() {
-    const domARButton = ARButton.createButton(this.renderer, {
-      requiredFeatures: ['hit-test'],
+    this.domARButton = ARButton.createButton(this.renderer, {
+      requiredFeatures: ['dom-overlay'],
+      domOverlay: {
+        root: document.getElementById('p5'),
+      },
     })
 
+    this.domARButton.disabled = true
+    this.domARButton.style.opacity = '0'
+
     // Create the AR button element, configure our XR session, and append it to the DOM.
-    document.body.appendChild(domARButton)
+    document.body.appendChild(this.domARButton)
 
     // Start audio
-    domARButton.addEventListener('click', () => {
-      this.audioController.setupAudioContext()
+    this.domARButton.addEventListener('click', () => {
+      SoundAnalyse.play()
     })
   }
 
   //////////////////////////////////////////////////////////////////////////////
 
-  // Check if browser supports WebXR with "immersive-ar".
   async start() {
+    // Check if browser supports WebXR with "immersive-ar".
     const immersiveArSupported = await browserHasImmersiveArCompatibility()
     immersiveArSupported ? this.init() : displayUnsupportedBrowserMessage()
   }
@@ -198,60 +176,14 @@ class Experience {
 
   updateTime() {
     this.frameCount += 1
-    this.elapsedTime = this.clock.getElapsedTime()
-    this.deltaTime = this.elapsedTime - this.lastElapsedTime
-    this.lastElapsedTime = this.elapsedTime
   }
 
-  updateVisualizerIco() {
-    if (this.audioController.isPlaying()) {
-      // Update audio data
-      this.audioController.update()
-      const dataArray = this.audioController.getAudioData()
-
-      // Update visualizer material
-      this.materialIco.uniforms.uDataArray.value = dataArray
-
-      const { lowerMaxFrMod, upperAvgFrMod } =
-        this.audioController.getAudioDataProcessed()
-
-      this.materialIco.uniforms.uBassFr.value = lowerMaxFrMod
-      this.materialIco.uniforms.uTreFr.value = upperAvgFrMod
-    } else {
-      this.materialIco.uniforms.uBassFr.value = 0
-      this.materialIco.uniforms.uTreFr.value = 0
+  updateWebXR() {
+    const callbacks = {
+      onSessionEnd: () => this.onSessionEnd(),
+      onSessionStart: () => this.onSessionStart(),
     }
-
-    // Update visualizer mesh
-    if (this.visualizerIco) {
-      const r = Math.sin(this.elapsedTime * 0.5) * 0.5
-      this.visualizerIco.rotation.set(r, r, r)
-
-      // Update uniforms
-      this.materialIco.uniforms.uTime.value = this.frameCount / 10 //this.elapsedTime
-      this.materialIco.uniforms.uSpeed.value = settings.ico.speed
-      this.materialIco.uniforms.uNoiseDensity.value = settings.ico.density
-      this.materialIco.uniforms.uNoiseStrength.value = settings.ico.strength
-      this.materialIco.uniforms.uFrequency.value = settings.ico.frequency
-      this.materialIco.uniforms.uAmplitude.value = settings.ico.amplitude
-      this.materialIco.uniforms.uIntensity.value = settings.ico.intensity
-    }
-  }
-
-  updateWebXR(frame) {
-    handleXRHitTest(
-      this.renderer,
-      frame,
-      (hitPoseTransformed) => {
-        if (hitPoseTransformed) {
-          this.marker.visible = true
-          this.marker.matrix.fromArray(hitPoseTransformed)
-        }
-      },
-      () => {
-        this.marker.visible = false
-      }
-    )
+    handleSession(this.renderer, callbacks)
   }
 
   updateParticleSystem(time) {
@@ -260,19 +192,26 @@ class Experience {
     }
   }
 
+  updateSphere() {
+    if (this.sphereMaterial) {
+      this.sphereMaterial.uniforms.uTime.value = this.frameCount
+      this.sphereMaterial.uniforms.uFrequency.value = SoundAnalyse.mapF
+      this.sphereMaterial.uniforms.uAmplitude.value = SoundAnalyse.mapA
+    } else {
+      this.sphereMaterial.uniforms.uFrequency.value = 0
+      this.sphereMaterial.uniforms.uAmplitude.value = 0
+    }
+  }
+
   update() {
     const renderLoop = (time, frame) => {
       if (!this.isReady) return
 
-      if (this.particleMaterial) {
-        // this.particleMaterial.uniforms.uTime.value = time
-      }
-
-      if (this.renderer.xr.isPresenting) {
+      if (this.renderer?.xr?.isPresenting) {
         if (frame) {
           this.updateTime()
-          this.updateWebXR(frame)
-          this.updateVisualizerIco()
+          this.updateWebXR()
+          this.updateSphere()
           this.updateParticleSystem(time)
         }
         this.renderer.render(this.scene, this.camera)

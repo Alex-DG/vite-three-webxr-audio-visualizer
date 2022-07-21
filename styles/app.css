@@ -5,7 +5,8 @@
 
 html,
 body {
-  height: 100vh;
+  height: 100%;
+  overflow: hidden;
   font-family: Arial, Helvetica, Arial, sans-serif;
   background-color: rgb(27, 27, 31);
 }
@@ -72,6 +73,29 @@ p {
 #ARButton {
   border: 2px solid rgb(255, 105, 180) !important;
   color: rgb(255, 105, 180) !important;
+  transition: opacity 0.5s ease-out;
+  -webkit-transition: opacity 0.5s ease-out;
+  margin-bottom: 20%;
+}
+
+#app > .loading {
+  opacity: 1;
+  display: block;
+  transition: opacity 0.5s ease-out;
+  -webkit-transition: opacity 0.5s ease-out;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20%;
+}
+
+#app > .loading > h1 {
+  color: #fff;
 }
 
 #experience {
@@ -80,8 +104,34 @@ p {
   top: 0;
   left: 0;
 
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 
   outline: none;
+}
+
+#p5 {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  outline: none;
+  z-index: 1;
+}
+
+#p5 > .xr-end-session-btn {
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: 0;
+  z-index: 999;
+  padding: 0.3em 0.5em;
+  font-size: 3rem;
+  text-shadow: 1px 1px #919091;
+  color: #fff;
+  transition: opacity 0.5s ease-out;
+  -webkit-transition: opacity 0.5s ease-out;
 }
