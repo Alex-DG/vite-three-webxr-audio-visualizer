@@ -5,6 +5,10 @@
 - WebXR
 - [Music by Pandrezz - Curtain Call](https://www.youtube.com/watch?v=Yc_T-CyCvYM)
 
+
+[Live w/ waveform](https://audio-reactive.vercel.app/?waveform)
+[Live w/o waveform](https://audio-reactive.vercel.app/)
+
 ## Setup
 
 Run the following commands:
